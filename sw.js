@@ -1,13 +1,13 @@
 /* ControlCard — Service Worker
    Troque o número de VERSAO sempre que alterar ESTE arquivo (sw.js) ou os ícones.
    O index.html se atualiza sozinho (rede primeiro); não precisa mexer na versão por causa dele. */
-const VERSAO = 'controlcard-v3.4';
+const VERSAO = 'controlcard-v4.0';
 const CACHE_APP = VERSAO + '-app';
 const CACHE_EXT = VERSAO + '-ext';
 
 const ARQUIVOS = [
   './', './index.html', './manifest.json',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'
+  './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'
 ];
 // Sincronização com o Google nunca passa pelo cache
 const SEM_CACHE = ['script.google.com', 'script.googleusercontent.com'];
@@ -64,4 +64,13 @@ self.addEventListener('fetch', e => {
       )
     );
   }
+});
+
+// Toque na notificação: volta para o app (ou abre, se estiver fechado)
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(lista => {
+    for (const c of lista) { if ('focus' in c) return c.focus(); }
+    return self.clients.openWindow('./');
+  }));
 });
