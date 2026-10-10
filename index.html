@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="ControlCard">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#f59e0b">
-    <link rel="manifest" href="manifest.json?v=3.5">
+    <link rel="manifest" href="manifest.json?v=4.0">
     <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f59e0b' rx='20'/%3E%3Ctext x='50' y='65' font-size='45' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3ECC%3C/text%3E%3C/svg%3E">
     
     <title>ControlCardMult</title>
@@ -46,6 +46,11 @@
         .cloud-status.synced { color: var(--success); }
         .cloud-status.offline { color: var(--danger); }
 
+        .ajuste-btn { position: absolute; top: 10px; right: 50px; height: 32px; padding: 0 10px; box-sizing: border-box; border-radius: 8px; background: var(--surface); color: var(--primary); display: flex; align-items: center; gap: 4px; cursor: pointer; border: 1px solid var(--border); z-index: 100; font-size: 0.72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+        @media (max-width: 380px) { .ajuste-btn { top: 48px; right: 10px; } }
+        .aj-linha { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; cursor: pointer; }
+        .aj-linha input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--primary); flex: none; }
+        .aj-hora { width: auto !important; padding: 8px !important; margin: 0 !important; }
         .page-header { position:relative; padding: 4px 50px 10px 0; }
         .page-header h2 { font-size:1.2rem; margin:0 0 2px; font-weight: 700; letter-spacing:-.02em; }
         .page-header p { margin:0; color:var(--text-light); font-size:0.75rem; }
@@ -177,6 +182,37 @@
         #toast-app { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 30px); opacity: 0; pointer-events: none; z-index: 99999; max-width: 90vw; padding: 14px 20px; border-radius: 14px; font-weight: 700; font-size: .95rem; color: #fff; background: var(--success); box-shadow: 0 12px 40px rgba(0,0,0,.25); transition: 0.3s; text-align: center; }
         #toast-app.erro { background: var(--danger); }
         #toast-app.show { opacity: 1; transform: translate(-50%, 0); }
+    
+        /* ===== Menus que abrem e fecham ===== */
+        .acc-card { padding: 0 !important; }
+        .acc-head { display: flex; align-items: center; gap: 8px; padding: 9px 10px; cursor: pointer; font-size: 0.9rem; font-weight: 800; user-select: none; }
+        .acc-head > .material-icons-outlined:first-child { color: var(--primary); font-size: 1.15rem; }
+        .acc-title { flex: 1; }
+        .acc-chev { color: var(--text-light); transition: transform .2s; }
+        .acc-card.open .acc-chev { transform: rotate(180deg); }
+        .acc-body { display: none; padding: 0 10px 10px; border-top: 1px dashed var(--border); padding-top: 8px; }
+        .acc-card.open .acc-body { display: block; }
+        /* ===== Tela de bloqueio ===== */
+        #tela-bloqueio { display: none; position: fixed; inset: 0; z-index: 999990; background: var(--bg); color: var(--text); flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; box-sizing: border-box; }
+        .pin-dots { display: flex; gap: 14px; margin: 4px 0; }
+        .pin-dots span { width: 14px; height: 14px; border-radius: 7px; border: 2px solid var(--primary); }
+        .pin-dots span.on { background: var(--primary); }
+        .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 10px; }
+        .pin-key { height: 56px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 1.3rem; font-weight: 800; cursor: pointer; }
+        .pin-key:active { background: var(--primary); color: #000; }
+        .pin-erro { animation: tremer .3s; } @keyframes tremer { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .cal-lista-dia { font-size: .68rem; font-weight: 800; color: var(--text-light); margin: 6px 0 1px; padding-bottom: 1px; border-bottom: 1px dashed var(--border); text-transform: uppercase; }
+        /* ===== Visual mais compacto (menos espaço entre linhas) ===== */
+        .card { padding: 8px 10px; margin-bottom: 6px; }
+        .form-group { margin-bottom: 8px; }
+        .form-input { padding: 9px 10px; }
+        .btn { padding: 10px 12px; }
+        .t-row { padding: 4px 4px; }
+        .t-desc strong { margin-bottom: 0; }
+        .section-label { margin: 8px 0 4px; }
+        .helper { margin-bottom: 6px; }
+        .aj-linha { padding: 6px 0; }
+        .tree-header { padding: 4px 10px; }
     </style>
 </head>
 <body>
@@ -210,10 +246,26 @@
 </div>
 
 <!-- ENVELOPE PRINCIPAL DO APLICATIVO -->
+<div id="tela-bloqueio">
+    <div class="brand-mark" style="width:54px; height:54px; font-size:1.3rem;">CC</div>
+    <div style="font-size:0.7rem; letter-spacing:.12em; color:var(--text-light); font-weight:800;">APP BLOQUEADO</div>
+    <div id="bloq-nome" style="font-weight:900; font-size:1.1rem; color:var(--primary);"></div>
+    <div class="pin-dots" id="bloq-dots"><span></span><span></span><span></span><span></span></div>
+    <div id="bloq-msg" style="min-height:18px; font-size:0.8rem; color:var(--danger); font-weight:700;"></div>
+    <div class="pin-pad">
+        <button class="pin-key" onclick="digitarPinBloqueio('1')">1</button><button class="pin-key" onclick="digitarPinBloqueio('2')">2</button><button class="pin-key" onclick="digitarPinBloqueio('3')">3</button>
+        <button class="pin-key" onclick="digitarPinBloqueio('4')">4</button><button class="pin-key" onclick="digitarPinBloqueio('5')">5</button><button class="pin-key" onclick="digitarPinBloqueio('6')">6</button>
+        <button class="pin-key" onclick="digitarPinBloqueio('7')">7</button><button class="pin-key" onclick="digitarPinBloqueio('8')">8</button><button class="pin-key" onclick="digitarPinBloqueio('9')">9</button>
+        <span></span><button class="pin-key" onclick="digitarPinBloqueio('0')">0</button><button class="pin-key" onclick="apagarPinBloqueio()"><span class="material-icons-outlined">backspace</span></button>
+    </div>
+    <button class="btn-small" style="margin-top:8px;" onclick="fazerLogout()">Trocar de usuário</button>
+</div>
+
 <div id="app-wrapper" style="display: none; opacity: 0; transition: opacity 0.3s ease;">
 
     <!-- BOTÃO DE TEMA VOLTOU -->
     <div class="theme-btn" onclick="mudarTema()" title="Mudar Cores"><span class="material-icons-outlined" style="font-size:1.2rem;">palette</span></div>
+    <div class="ajuste-btn" onclick="abrirAjuste()" title="Abrir o menu Ajuste"><span class="material-icons-outlined" style="font-size:1.1rem;">tune</span>Ajuste</div>
 
     <div class="modal-overlay" id="modal-overlay" onclick="fecharModais()"></div>
 
@@ -224,7 +276,7 @@
             <div class="dock-item" id="icon-calendario" onclick="mudarTela('calendario','Calendário')"><span class="material-icons-outlined">event_note</span></div>
             <button class="dock-main" onclick="abrirModalLancamento()"><span class="material-icons-outlined">add</span></button>
             <div class="dock-item" id="icon-extrato" onclick="mudarTela('extrato','Cobranças e Extrato')"><span class="material-icons-outlined">receipt_long</span></div>
-            <div class="dock-item" id="icon-config" onclick="mudarTela('config','Cadastros e Ajustes')"><span class="material-icons-outlined">settings</span></div>
+            <div class="dock-item" id="icon-config" onclick="mudarTela('config','Ajuste')"><span class="material-icons-outlined">settings</span></div>
         </div>
     </div>
 
@@ -338,6 +390,21 @@
     </div>
 
     <!-- MODAL EDIÇÃO DIRETA -->
+    <div class="modal" id="modal-cartao">
+        <button class="modal-close-btn" onclick="fecharModais()"><span class="material-icons-outlined">close</span></button>
+        <div class="modal-drag"></div>
+        <h3 style="margin: 0 0 14px; color: var(--primary); font-size: 1.3rem; text-transform: uppercase; text-align: center; font-weight: 900;">EDITAR CARTÃO</h3>
+        <input type="hidden" id="ec-nome-orig">
+        <div class="form-group"><label>NOME</label><input type="text" id="ec-nome" class="form-input up-text"></div>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <div class="form-group" style="flex:1; margin:0;"><label>FECHA (DIA)</label><input type="number" id="ec-fecha" class="form-input" min="1" max="31" inputmode="numeric" style="padding:10px;"></div>
+            <div class="form-group" style="flex:1; margin:0;"><label>VENCE (DIA)</label><input type="number" id="ec-vence" class="form-input" min="1" max="31" inputmode="numeric" style="padding:10px;"></div>
+            <div class="form-group" style="flex:1; margin:0;"><label>MELHOR DIA</label><input type="number" id="ec-melhor" class="form-input" min="1" max="31" inputmode="numeric" placeholder="auto" style="padding:10px;"></div>
+        </div>
+        <p class="helper">Melhor dia vazio = dia seguinte ao fechamento. Se o banco mudar as datas, é só editar aqui: os avisos sempre usam o valor atual.</p>
+        <button class="btn btn-primary" onclick="salvarCartaoEditado()">SALVAR CARTÃO</button>
+    </div>
+
     <div class="modal" id="modal-edicao">
         <button class="modal-close-btn" onclick="fecharModais()"><span class="material-icons-outlined">close</span></button>
         <div class="modal-drag"></div>
@@ -383,7 +450,7 @@
         <div class="page-header">
             <div class="brand-line" style="margin-bottom: 0;">
                 <div class="brand-mark">CC</div>
-                <span class="brand-name">ControlCardMult <span class="v-badge">v3.3</span>
+                <span class="brand-name">ControlCardMult <span class="v-badge">v4.0</span>
                     <span id="cloud-status-icon" class="material-icons-outlined cloud-status synced" onclick="sincronizarManual(false, true)">cloud_done</span>
                 </span>
             </div>
@@ -443,6 +510,10 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px; border-bottom: 1px dashed var(--border); padding-bottom: 8px;"><h4 id="cal-dia-titulo" style="margin:0; font-size: 0.9rem; color:var(--primary); text-transform: uppercase; font-weight: 900;">Detalhes</h4><button class="btn-small" onclick="fecharDetalheDia()" style="border:none; background:transparent; padding: 0;"><span class="material-icons-outlined" style="font-size: 1.3rem;">close</span></button></div>
                 <div id="cal-dia-lista"></div>
             </div>
+            <div class="card" style="margin-top:8px;">
+                <div id="cal-mes-titulo" style="font-size:0.7rem; font-weight:800; color:var(--primary); letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px;">LANÇAMENTOS DO MÊS</div>
+                <div id="cal-mes-lista"></div>
+            </div>
         </div>
 
         <!-- TELA 3: EXTRATO -->
@@ -464,25 +535,46 @@
             <div id="lista-transacoes-container"></div>
         </div>
 
-        <!-- TELA 4: AJUSTES & CADASTROS -->
+        <!-- TELA 4: MENU AJUSTE (cada seção abre e fecha ao tocar) -->
         <div id="tela-config" class="tela" style="display: none;">
-            
-            <div class="section-label" style="color: var(--primary);">👤 Opções do seu Perfil</div>
-            <div class="card">
-                <button class="btn btn-danger" style="margin-bottom: 15px; font-size: 1rem; padding: 16px;" onclick="fazerLogout()"><span class="material-icons-outlined">power_settings_new</span> DESCONECTAR / SAIR DO PERFIL</button>
-                <hr style="border: 1px dashed var(--border); margin: 15px 0;">
-                <h3 style="font-size:0.9rem;"><span class="material-icons-outlined">notifications</span> Alertas Diários (Push)</h3>
-                <p class="helper">O app vai analisar o dia e avisar sobre quais cartões vão fechar/vencer.</p>
-                <div style="display:flex; gap:10px; margin-bottom: 10px;">
-                    <input type="time" id="push-horario" class="form-input" value="20:00" style="padding:10px;">
-                    <button class="btn btn-outline" style="padding:10px; border-color:var(--primary); color:var(--primary);" onclick="salvarConfigPush()">SALVAR HORÁRIO</button>
-                </div>
-                <button class="btn btn-outline" style="color:var(--success); border-color:var(--success);" onclick="baixarExcelUsuario()"><span class="material-icons-outlined">table_view</span> BAIXAR MEU EXCEL (CSV)</button>
-            </div>
+            <div class="section-label">👤 Meu perfil</div>
+            <div class="card acc-card open">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">person</span><span class="acc-title">Meu perfil e acesso</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><p class="helper">Seus dados (pessoas, cartões e lançamentos) são só seus, separados dos de outros usuários.</p><button class="btn btn-danger" style="margin-bottom: 8px; font-size: 1rem; padding: 16px;" onclick="fazerLogout()"><span class="material-icons-outlined">power_settings_new</span> DESCONECTAR / SAIR DO PERFIL</button><button class="btn btn-outline" style="color:var(--success); border-color:var(--success);" onclick="baixarExcelUsuario()"><span class="material-icons-outlined">table_view</span> BAIXAR MEU EXCEL (CSV)</button></div>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">notifications</span><span class="acc-title">Avisos (push)</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><label class="aj-linha"><span><strong>Ativar avisos</strong><br><span id="aj-permissao" style="font-size:0.7rem; color:var(--text-light);"></span></span><input type="checkbox" id="aj-ativo"></label>
+                <button class="btn btn-outline" style="margin:8px 0 4px; padding:8px;" onclick="pedirPermissaoAvisos()">PERMITIR NOTIFICAÇÕES DO CELULAR</button>
+                <p class="helper">Com o app aberto o aviso aparece na tela; aberto em segundo plano vira notificação do celular (precisa permitir). Com o app fechado não chega aviso.</p>
+                <div class="section-label">📝 Compras do dia</div>
+                <label class="aj-linha"><span>Lembrar de lançar as compras</span><input type="checkbox" id="aj-compras"></label>
+                <div class="aj-linha" style="cursor:default;"><span>Horário</span><input type="time" id="aj-compras-hora" class="form-input aj-hora"></div>
+                <label class="aj-linha"><span>Só avisar se ainda não lancei hoje</span><input type="checkbox" id="aj-so-nao-lancou"></label>
+                <p class="helper" style="margin:6px 0 2px;"><strong>Pessoas que acompanho</strong> (o aviso diz quem ficou sem lançamento hoje; vazio = aviso geral)</p>
+                <div id="aj-lista-pessoas"></div>
+                <div class="section-label">💳 Cartões</div>
+                <label class="aj-linha"><span>Avisar vencimento e melhor dia de compra</span><input type="checkbox" id="aj-cartoes"></label>
+                <div class="aj-linha" style="cursor:default;"><span>Horário</span><input type="time" id="aj-cartoes-hora" class="form-input aj-hora"></div>
+                <div class="aj-linha" style="cursor:default;"><span>Avisar o vencimento quantos dias antes?</span><input type="number" id="aj-dias-antes" class="form-input aj-hora" min="0" max="15" inputmode="numeric" style="width:70px !important;"></div>
+                <label class="aj-linha"><span>Avisar o melhor dia de compra</span><input type="checkbox" id="aj-melhor"></label>
+                <p class="helper" style="margin:6px 0 2px;"><strong>Cartões que acompanho</strong></p>
+                <div id="aj-lista-cartoes"></div>
+                <button class="btn btn-primary" style="margin-top:10px;" onclick="salvarAjuste()">SALVAR AVISOS</button>
+                <button class="btn btn-outline" style="margin-top:6px; padding:8px;" onclick="testarAvisos()">TESTAR AGORA</button></div>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">lock</span><span class="acc-title">Bloqueio do app</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><p class="helper">Fica logado, mas o app pede o seu PIN quando você volta depois de um tempo fora.</p>
+                <div class="aj-linha" style="cursor:default;"><span>Bloquear</span><select id="aj-bloqueio" class="form-input aj-hora" style="width:auto !important;"><option value="nunca">Nunca</option><option value="0">Sempre que sair do app</option><option value="1">Após 1 minuto fora</option><option value="5">Após 5 minutos fora</option><option value="15">Após 15 minutos fora</option><option value="60">Após 1 hora fora</option></select></div>
+                <button class="btn btn-primary" style="margin-top:10px;" onclick="salvarAjuste()">SALVAR BLOQUEIO</button>
+                <button class="btn btn-outline" style="margin-top:6px; padding:8px;" onclick="mostrarBloqueio()">BLOQUEAR AGORA</button></div>
+</div>
 
-            <div class="section-label">Cadastros Globais</div>
-            <div class="card">
-                <h3 style="font-size:0.9rem;"><span class="material-icons-outlined">people</span> Pessoas (Nomes)</h3>
+            <div class="section-label">📒 Meus cadastros</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">people</span><span class="acc-title">Pessoas (Nomes)</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                 <p class="helper">Nomes das pessoas com quem você divide contas ou empresta o cartão.</p>
                 <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                     <div style="display:flex; flex:1; gap:4px;"><input type="text" id="nova-pessoa-simples" class="form-input up-text" placeholder="Nome (Ex: JOÃO)" style="margin-bottom:0; padding:10px;"><button class="btn-small" onclick="inserirEmoji(this, 'nova-pessoa-simples')">😀</button></div>
@@ -490,52 +582,43 @@
                 </div>
                 <div id="lista-edit-pessoas-simples"></div>
             </div>
-
-            <div class="card">
-                <h3 style="font-size:0.9rem;"><span class="material-icons-outlined">credit_card</span> Cartões</h3>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">credit_card</span><span class="acc-title">Cartões</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                 <div class="form-group"><div style="display:flex; gap:4px; flex:1;"><input type="text" id="novo-cartao-nome" class="form-input up-text" placeholder="Nome (Ex: NUBANK)" style="padding:10px;"><button class="btn-small" onclick="inserirEmoji(this, 'novo-cartao-nome')">😀</button></div></div>
                 <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                     <div class="form-group" style="flex:1; margin:0;"><label>FECHA (DIA)</label><input type="number" id="novo-cartao-fecha" class="form-input" placeholder="25" style="padding:10px;"></div>
                     <div class="form-group" style="flex:1; margin:0;"><label>VENCE (DIA)</label><input type="number" id="novo-cartao-vence" class="form-input" placeholder="05" style="padding:10px;"></div>
+                    <div class="form-group" style="flex:1; margin:0;"><label>MELHOR DIA</label><input type="number" id="novo-cartao-melhor" class="form-input" placeholder="auto" style="padding:10px;"></div>
                 </div>
+                <p class="helper">Melhor dia vazio = dia seguinte ao fechamento. Todas as datas podem ser editadas depois no lápis de cada cartão.</p>
                 <button class="btn btn-outline" style="margin-bottom: 10px; padding:10px;" onclick="addCartao()">ADICIONAR CARTÃO</button>
                 <div id="lista-edit-cartoes"></div>
             </div>
-
-            <div class="card">
-                <h3 style="font-size:0.9rem;"><span class="material-icons-outlined">category</span> Categorias</h3>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">category</span><span class="acc-title">Categorias</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                 <div style="display: flex; gap: 8px; margin-bottom: 10px;">
                     <div style="display:flex; flex:1; gap:4px;"><input type="text" id="nova-categoria" class="form-input up-text" placeholder="Ex: 🛍 ALIMENTAÇÃO" style="margin-bottom:0; padding:10px;"><button class="btn-small" onclick="inserirEmoji(this, 'nova-categoria')">😀</button></div>
                     <button class="btn btn-primary" style="width: auto; padding: 0 12px;" onclick="addCategoria()">SALVAR</button>
                 </div>
                 <div id="lista-edit-categorias"></div>
             </div>
-            
-            <!-- ADMIN PANEL (SÓ APARECE PARA QUEM FOR ROLE=ADMIN) -->
-            <div id="admin-panel" style="display: none;">
-                
-                <div class="section-label" style="color: var(--danger); margin-top: 30px;">🔑 Gestão de Acessos (Logins)</div>
-                <div class="card" style="border-color: var(--danger);">
-                    <h3 style="color: var(--danger); font-size:0.9rem;"><span class="material-icons-outlined">manage_accounts</span> Criar Senha para uma Pessoa</h3>
-                    <p class="helper">Selecione uma pessoa já cadastrada acima e crie um PIN para ela entrar no app pelo celular dela.</p>
-                    <div class="form-group"><label>ESCOLHA A PESSOA:</label><select id="adm-login-pessoa" class="form-input up-text"></select></div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-                        <input type="number" id="adm-novo-user-pin" class="form-input" placeholder="PIN (4 dig)" maxlength="4">
-                        <select id="adm-novo-user-perfil" class="form-input up-text"><option value="user">USER COMUM</option><option value="admin">ADMINISTRADOR</option></select>
-                    </div>
-                    <button class="btn btn-danger" style="padding:12px; margin-bottom: 15px;" onclick="adminCriarUsuario()">CRIAR/ATUALIZAR ACESSO</button>
-                    <div id="admin-lista-usuarios"></div>
-                </div>
+</div>
 
-                <div class="section-label" style="color: var(--danger);">🛠 Gestão em Massa</div>
-                <div class="card" style="border-color: var(--danger);">
-                    <h3 style="color: var(--danger); font-size:0.9rem;"><span class="material-icons-outlined">layers</span> Gestão de Assinaturas e Parcelas</h3>
+            <div class="section-label">🛠 Ferramentas</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">layers</span><span class="acc-title">Gestão de Assinaturas e Parcelas</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                     <div class="form-group"><label>PESSOA:</label><select id="parc-pessoa" class="form-input up-text" style="padding:10px;" onchange="renderizarListaParcelamentos()"></select></div>
                     <div id="lista-parcelamentos-container" style="margin: 12px 0;"><p style="color:var(--text-light); font-size:0.85rem; text-align:center;">Nenhum registo em andamento encontrado.</p></div>
                 </div>
-                
-                <div class="card" style="border-color: var(--danger);">
-                    <h3 style="color: var(--danger); font-size:0.9rem;"><span class="material-icons-outlined">move_up</span> Repassar Dívida (Mover Contas)</h3>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">move_up</span><span class="acc-title">Repassar Dívida (Mover Contas)</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <div class="form-group" style="margin:0;"><label>TIRAR DE:</label><select id="transf-de" class="form-input up-text" style="padding:10px;" onchange="renderizarListaTransferencia()"></select></div>
                         <div class="form-group" style="margin:0;"><label>PASSAR PARA:</label><select id="transf-para" class="form-input up-text" style="padding:10px;"></select></div>
@@ -543,9 +626,10 @@
                     <div id="lista-transferencia-container" style="margin: 10px 0;"></div>
                     <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger); padding:10px;" onclick="executarTransferenciaInterativa()">Repassar Marcadas</button>
                 </div>
-                
-                <div class="card" style="border: 1px solid var(--danger);">
-                    <h3 style="color: var(--danger); font-size:0.9rem;"><span class="material-icons-outlined">build</span> Correção Direta (Lado A -> B)</h3>
+</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">build</span><span class="acc-title">Correção Direta (Lado A -> B)</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body">
                     <div class="box-correcao">
                         <div class="box-title" style="color: var(--danger);">LADO 1: Onde está o erro?</div>
                         <div class="form-group"><label>SE A PESSOA FOR:</label><select id="corr-orig-pessoa" class="form-input up-text" style="padding:10px;"></select></div>
@@ -558,26 +642,39 @@
                     </div>
                     <button class="btn btn-danger" style="padding:10px;" onclick="executarCorrecaoLadoALado()">APLICAR CORREÇÃO</button>
                 </div>
+</div>
 
-                <div class="section-label" style="color: var(--danger);">Sincronização & Backup Global</div>
-                <div class="card" style="border-color: var(--danger);">
-                    <input type="url" id="drive-webhook" class="form-input" style="font-size: 0.8rem; text-transform: none; padding:10px; border-color: rgba(239, 68, 68, 0.5); margin-bottom:10px;" placeholder="URL Webhook Google Drive" onchange="salvarWebhook()">
-                    <button class="btn btn-primary" style="margin-bottom:8px; padding:10px;" onclick="sincronizarManual(true, true)">FORÇAR ENVIO PARA NUVEM</button>
-                    <button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="sincronizarManual(false, true)">PUXAR DA NUVEM AGORA</button>
-                    <hr style="border: 1px solid rgba(239, 68, 68, 0.2); margin: 15px 0;">
-                    <button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="exportarBackup(false)"><span class="material-icons-outlined">download</span> Baixar Backup JSON (Tudo)</button>
-                    <button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="document.getElementById('import-file').click()"><span class="material-icons-outlined">file_upload</span> Importar Backup JSON ou Planilha (.xlsx)</button>
-                    <input type="file" id="import-file" accept=".json,.xlsx,.xls" onchange="importarBackup(event)" style="display:none;">
-                    <hr style="border: 1px solid rgba(239, 68, 68, 0.2); margin: 15px 0;">
-                    <button class="btn btn-danger" style="padding:10px;" onclick="adminZerarTudo()">ZERAR BASE COMPLETA</button>
-                </div>
+            <div class="section-label">☁️ Nuvem e backup</div>
+            <div class="card acc-card">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">cloud_sync</span><span class="acc-title">Nuvem e backup</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><p class="helper">Cada usuário usa a própria URL de nuvem; ela guarda só os seus dados.</p><input type="url" id="drive-webhook" class="form-input" style="font-size: 0.8rem; text-transform: none; padding:10px; border-color: rgba(239, 68, 68, 0.5); margin-bottom:10px;" placeholder="URL Webhook Google Drive" onchange="salvarWebhook()"><button class="btn btn-primary" style="margin-bottom:8px; padding:10px;" onclick="sincronizarManual(true, true)">FORÇAR ENVIO PARA NUVEM</button><button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="sincronizarManual(false, true)">PUXAR DA NUVEM AGORA</button><hr style="border:1px solid var(--border); margin:10px 0;"><button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="exportarBackup(false)"><span class="material-icons-outlined">download</span> Baixar Backup JSON (meus dados)</button><button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="document.getElementById('import-file').click()"><span class="material-icons-outlined">file_upload</span> Importar Backup/Planilha ou Planilha (.xlsx)</button><input type="file" id="import-file" accept=".json,.xlsx,.xls" onchange="importarBackup(event)" style="display:none;"></div>
+</div>
+
+            <!-- ADMINISTRAÇÃO: só o que mexe com os usuários do sistema -->
+            <div id="admin-panel" style="display: none;">
+                <div class="section-label" style="color: var(--danger);">🔑 Administração</div>
+                <div class="card acc-card" style="border-color: var(--danger);">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">manage_accounts</span><span class="acc-title">Acessos ao sistema (usuários)</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><p class="helper">Quem usa o sistema. Cada usuário tem os próprios cartões, pessoas e lançamentos.</p>
+                    <div class="form-group"><label>NOME DO USUÁRIO:</label><input type="text" id="adm-novo-user-nome" class="form-input up-text" placeholder="Ex: MARIA" style="padding:10px;"></div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                        <input type="number" id="adm-novo-user-pin" class="form-input" placeholder="PIN (4 dig)" maxlength="4">
+                        <select id="adm-novo-user-perfil" class="form-input up-text"><option value="user">USUÁRIO COMUM</option><option value="admin">ADMINISTRADOR</option></select>
+                    </div>
+                    <button class="btn btn-danger" style="padding:10px; margin-bottom: 10px;" onclick="adminCriarUsuario()">CRIAR/ATUALIZAR ACESSO</button>
+                    <div id="admin-lista-usuarios"></div></div>
+</div>
+                <div class="card acc-card" style="border-color: var(--danger);">
+<div class="acc-head" onclick="toggleAcc(this)"><span class="material-icons-outlined">shield</span><span class="acc-title">Backup geral e reinício</span><span class="material-icons-outlined acc-chev">expand_more</span></div>
+<div class="acc-body"><button class="btn btn-outline" style="margin-bottom:8px; padding:10px;" onclick="exportarBackupGeral()"><span class="material-icons-outlined">download</span> Baixar backup GERAL (todos os usuários)</button><button class="btn btn-danger" style="padding:10px;" onclick="adminZerarTudo()">ZERAR BASE COMPLETA</button></div>
+</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const APP_VERSION = '3.5';
+    const APP_VERSION = '4.0';
     const DB_NOME = 'ControlCard_Multi_DB'; 
     
     // Core de Temas
@@ -593,18 +690,77 @@
         localStorage.setItem('cc_tema', temaAtual);
     }
 
-    // Core Inicialização DB
-    let db = JSON.parse(localStorage.getItem(DB_NOME));
-    if (!db || !db.despesas) {
-        db = {
-            usuarios: [], // Logins seguros
-            cartoes: [{ nome: 'NUBANK', fechamento: 25, vencimento: 5 }],
-            categorias: ["🛍 Mercado/Compras", "🚗 Transporte/Veículo", "🏠 Casa/Contas"],
-            pessoas: ['NETO'], // Apenas os nomes das pessoas p/ cadastro
-            pessoasInativas: [], cartoesInativos: [], categoriasInativas: [],
-            despesas: [], pagamentos: [], emprestimos: []
-        };
-        salvarDB();
+    /* ================= BANCO DE DADOS (v4): um banco separado por usuário =================
+       ROOT.usuarios       -> quem usa o sistema (nome, PIN, perfil)
+       ROOT.dados[userId]  -> banco DESTE usuário: pessoas (a quem empresta o cartão), cartões, categorias, lançamentos
+       db                  -> atalho para o banco do usuário logado: todo o app trabalha em db.* */
+    const CHAVES_LISTA = ['pessoas','cartoes','categorias','pessoasInativas','cartoesInativos','categoriasInativas','emprestimos','despesas','pagamentos'];
+    function novoDataset() { return { pessoas: [], cartoes: [], categorias: ["🛍 Mercado/Compras", "🚗 Transporte/Veículo", "🏠 Casa/Contas"], pessoasInativas: [], cartoesInativos: [], categoriasInativas: [], emprestimos: [], despesas: [], pagamentos: [], comprovantes: {} }; }
+    function normalizarDataset(ds) {
+        ds = ds && typeof ds === 'object' ? ds : {};
+        CHAVES_LISTA.forEach(k => { if (!Array.isArray(ds[k])) ds[k] = []; });
+        if (!ds.comprovantes || typeof ds.comprovantes !== 'object') ds.comprovantes = {};
+        ds.cartoes = ds.cartoes.map(c => typeof c === 'string' ? { nome: c, fechamento: 25, vencimento: 5 } : c);
+        delete ds.usuarios; delete ds.versao; delete ds.usuarioNome; // não pertencem ao banco do usuário
+        return ds;
+    }
+    function vincularDataset(ds) { // db.usuarios continua funcionando (aponta para ROOT.usuarios) e não entra no JSON do usuário
+        if (!Object.getOwnPropertyDescriptor(ds, 'usuarios')) Object.defineProperty(ds, 'usuarios', { get: () => ROOT.usuarios, set: v => { ROOT.usuarios = v; }, enumerable: false, configurable: true });
+        return ds;
+    }
+    let migrouParaV4 = false;
+    function carregarRoot() {
+        let bruto = null; try { bruto = JSON.parse(localStorage.getItem(DB_NOME)); } catch (e) {}
+        if (bruto && bruto.versao === 'v4' && bruto.dados && typeof bruto.dados === 'object') {
+            bruto.usuarios = Array.isArray(bruto.usuarios) ? bruto.usuarios : [];
+            Object.keys(bruto.dados).forEach(k => { bruto.dados[k] = normalizarDataset(bruto.dados[k]); });
+            return bruto;
+        }
+        if (bruto && (Array.isArray(bruto.despesas) || Array.isArray(bruto.usuarios))) { // formato antigo (um banco só): vira o banco do primeiro administrador
+            try { localStorage.setItem(DB_NOME + '_antes_v4', localStorage.getItem(DB_NOME)); } catch (e) {}
+            const usuarios = Array.isArray(bruto.usuarios) ? bruto.usuarios : [];
+            const dono = usuarios.find(u => u.role === 'admin') || usuarios[0];
+            const root = { versao: 'v4', usuarios, dados: {} };
+            const ds = normalizarDataset(bruto);
+            if (dono) { root.dados[dono.id] = ds; const w = localStorage.getItem('cc_drive_webhook'); if (w && !localStorage.getItem('cc_drive_webhook_' + dono.id)) localStorage.setItem('cc_drive_webhook_' + dono.id, w); }
+            else root.dados.__novo = ds;
+            migrouParaV4 = true; return root;
+        }
+        return { versao: 'v4', usuarios: [], dados: {} };
+    }
+    let ROOT = carregarRoot();
+    let db = vincularDataset(normalizarDataset(novoDataset())); // banco vazio até alguém entrar
+    function gravarRoot() { localStorage.setItem(DB_NOME, JSON.stringify(ROOT)); }
+    if (migrouParaV4) { try { gravarRoot(); } catch (e) {} }
+    function chavePendente() { return 'cc_pendente_envio_' + (typeof currentUser !== 'undefined' && currentUser ? currentUser.id : ''); }
+    function chaveWebhook() { return 'cc_drive_webhook_' + (typeof currentUser !== 'undefined' && currentUser ? currentUser.id : ''); }
+    // Troca o banco do usuário logado (restauração, importação, nuvem) mantendo ROOT e db sincronizados
+    function trocarDataset(ds) { ds = normalizarDataset(ds); ROOT.dados[typeof currentUser !== 'undefined' && currentUser ? currentUser.id : '__novo'] = ds; db = vincularDataset(ds); return db; }
+    // Abre o banco do usuário que entrou (cria se não existir) e corrige referências quebradas
+    function abrirBancoDoUsuario(user) {
+        let criado = false;
+        if (!ROOT.dados[user.id]) {
+            if (ROOT.dados.__novo && ROOT.usuarios.length === 1) ROOT.dados[user.id] = ROOT.dados.__novo;
+            else { const ds = novoDataset(); ds.pessoas = [user.nome]; ROOT.dados[user.id] = ds; }
+            delete ROOT.dados.__novo; criado = true;
+        }
+        db = vincularDataset(normalizarDataset(ROOT.dados[user.id]));
+        const n = sanearDataset(db);
+        if (criado || n > 0) salvarDB();
+    }
+    // Garante que tudo o que um lançamento cita (pessoa, cartão, categoria) exista nos cadastros, sem nomes repetidos nem ids duplicados
+    function sanearDataset(ds) {
+        let n = 0; const T = v => String(v == null ? '' : v).trim();
+        const unicos = arr => { const vistos = new Set(); const out = []; arr.forEach(x => { const k = T(x); if (k && !vistos.has(k)) { vistos.add(k); out.push(k); } else n++; }); return out; };
+        ds.pessoas = unicos(ds.pessoas); ds.categorias = unicos(ds.categorias);
+        const vistosC = new Set(); ds.cartoes = ds.cartoes.filter(c => { const nm = T(c && c.nome); if (!nm || vistosC.has(nm)) { n++; return false; } vistosC.add(nm); c.nome = nm; return true; });
+        const temP = new Set(ds.pessoas), temC = new Set(ds.cartoes.map(c => c.nome)), temK = new Set(ds.categorias);
+        const garante = (set, valor, criar) => { if (valor && !set.has(valor)) { set.add(valor); criar(valor); n++; } };
+        ds.despesas.forEach(d => { garante(temP, d.pessoa, v => ds.pessoas.push(v)); garante(temC, d.cartao, v => ds.cartoes.push({ nome: v, fechamento: 25, vencimento: 5 })); garante(temK, d.categoria, v => ds.categorias.push(v)); });
+        ds.pagamentos.forEach(p => garante(temP, p.pessoa, v => ds.pessoas.push(v)));
+        [ds.despesas, ds.pagamentos].forEach(lista => { const ids = new Set(); let max = 0; lista.forEach(x => { if (+x.id > max) max = +x.id; });
+            lista.forEach(x => { if (x.id == null || ids.has(x.id)) { x.id = ++max; n++; } ids.add(x.id); }); });
+        return n;
     }
 
     let currentUser = null; 
@@ -615,7 +771,7 @@
     let base64Desp = null; let base64Pag = null;
     
     function salvarDB() {
-        try { localStorage.setItem(DB_NOME, JSON.stringify(db)); localStorage.setItem('cc_pendente_envio', '1'); return true; }
+        try { gravarRoot(); if (currentUser) localStorage.setItem(chavePendente(), '1'); return true; }
         catch (e) { toast('⚠️ Memória do aparelho cheia! Baixe um backup e apague comprovantes antigos.', 'erro'); return false; }
     }
 
@@ -685,11 +841,9 @@
         
         // Se não tem ninguém, cria o Admin
         if(usersAtivos.length === 0) {
-            db.usuarios = [{ id: 'admin_' + Date.now(), nome: nome, pin: pin, role: 'admin', ativo: true }];
-            if(!db.pessoas) db.pessoas = [];
-            if(!db.pessoas.includes(nome)) db.pessoas.push(nome);
-            salvarDB();
-            executarLoginReal(db.usuarios[0], manterConectado());
+            const novoAdmin = { id: 'admin_' + Date.now(), nome: nome, pin: pin, role: 'admin', ativo: true };
+            ROOT.usuarios.push(novoAdmin); salvarDB();
+            executarLoginReal(novoAdmin, manterConectado());
             return;
         }
 
@@ -704,7 +858,7 @@
     }
 
     function executarLoginReal(user, manter) {
-        currentUser = user;
+        currentUser = user; abrirBancoDoUsuario(user);
         // manter === true: lembra neste aparelho; false: só até fechar o app; undefined: não muda (sessão restaurada)
         if (manter === true) { localStorage.setItem('cc_logged_user', user.id); sessionStorage.removeItem('cc_logged_user'); }
         else if (manter === false) { sessionStorage.setItem('cc_logged_user', user.id); localStorage.removeItem('cc_logged_user'); }
@@ -723,18 +877,19 @@
         mudarTela('dashboard', 'Visão Geral');
         sincronizarManual(false, false); 
         iniciarPushDiario();
+        iniciarBloqueio(manter === undefined);
     }
 
     function fazerLogout() { 
         sessionStorage.removeItem('cc_logged_user'); localStorage.removeItem('cc_logged_user');
-        currentUser = null; 
+        esconderBloqueio(); currentUser = null;
         document.getElementById('app-wrapper').style.opacity = '0'; 
         setTimeout(()=> renderizarTelaLogin(), 300); 
     }
 
     /* ================= ISOLAMENTO DE DADOS ================= */
-    function obterDespesasPermitidas() { return currentUser.role === 'admin' ? db.despesas : db.despesas.filter(d => d.pessoa === currentUser.nome); }
-    function obterPagamentosPermitidos() { return currentUser.role === 'admin' ? db.pagamentos : db.pagamentos.filter(p => p.pessoa === currentUser.nome); }
+    function obterDespesasPermitidas() { return db.despesas; } // cada usuário só tem o próprio banco
+    function obterPagamentosPermitidos() { return db.pagamentos; }
 
     const MESES_ABREV = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
     function formatarMesAno(mesStr) { if(!mesStr || !mesStr.includes('-')) return mesStr; let [ano, mes] = mesStr.split('-'); return `${MESES_ABREV[parseInt(mes)-1]}/${ano}`; }
@@ -747,20 +902,24 @@
         const r = new FileReader();
         r.onload = ev => {
             try {
-                let novo = JSON.parse(ev.target.result);
-                if (!novo.despesas) return toast('Arquivo inválido: Não é um backup do ControlCard.', 'erro');
-                
-                // MÁGICA 1: Preserva usuários atuais se o backup antigo não tiver
-                if (!novo.usuarios || novo.usuarios.length === 0) novo.usuarios = db.usuarios; 
-                
-                // MÁGICA 2: Garante arrays
-                ['pessoas','cartoes','categorias','pessoasInativas','cartoesInativos','categoriasInativas','emprestimos', 'despesas', 'pagamentos'].forEach(k => { if (!Array.isArray(novo[k])) novo[k] = []; });
-                
-                // Tratar formato antigo de cartões
-                novo.cartoes = novo.cartoes.map(c => typeof c === 'string' ? {nome: c, fechamento: 25, vencimento: 5} : c);
-
-                db = novo; salvarDB();
-                toast('✅ Dados restaurados e migrados perfeitamente!');
+                const novo = JSON.parse(ev.target.result);
+                const semUsuarios = !currentUser && ROOT.usuarios.length === 0;
+                if (novo && novo.versao === 'v4' && novo.dados && !Array.isArray(novo.despesas)) { // backup geral (todos os usuários)
+                    if (!semUsuarios && !(currentUser && currentUser.role === 'admin')) { e.target.value = ''; return toast('Só o administrador restaura o backup geral.', 'erro'); }
+                    if (!confirm('Restaurar o backup GERAL? Isso SUBSTITUI os dados de TODOS os usuários deste aparelho.')) { e.target.value = ''; return; }
+                    ROOT = { versao: 'v4', usuarios: Array.isArray(novo.usuarios) ? novo.usuarios : [], dados: {} };
+                    Object.keys(novo.dados).forEach(k => { ROOT.dados[k] = normalizarDataset(novo.dados[k]); });
+                } else if (novo && Array.isArray(novo.despesas)) { // backup de um usuário (ou backup antigo)
+                    const usuariosBackup = Array.isArray(novo.usuarios) ? novo.usuarios.filter(u => u && u.id && u.nome) : [];
+                    const ds = normalizarDataset(novo);
+                    if (currentUser) {
+                        if (!confirm(`Substituir TODOS os seus dados atuais por este backup (${ds.despesas.length} despesas)?`)) { e.target.value = ''; return; }
+                        exportarBackup(true); trocarDataset(ds); sanearDataset(db);
+                    } else if (ROOT.usuarios.length === 0 && usuariosBackup.length) { // tela de entrada: restaura o(s) usuário(s) do backup
+                        ROOT.usuarios = usuariosBackup; const dono = usuariosBackup.find(u => u.role === 'admin') || usuariosBackup[0]; ROOT.dados[dono.id] = ds;
+                    } else ROOT.dados.__novo = ds; // sem usuário no backup: o primeiro acesso criado recebe estes dados
+                } else { e.target.value = ''; return toast('Arquivo inválido: Não é um backup do ControlCard.', 'erro'); }
+                salvarDB(); toast('✅ Dados restaurados!');
                 setTimeout(() => window.location.reload(), 1500);
             } catch (err) { toast('Erro ao ler arquivo de backup.', 'erro'); }
             e.target.value = '';
@@ -768,12 +927,24 @@
         r.readAsText(f, "UTF-8");
     }
 
-    function exportarBackup(auto = false) {
-        const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json;charset=utf-8" });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `ControlCard_V3_${new Date().toISOString().substring(0,10)}.json`; 
-        a.click(); toast("Backup baixado com sucesso!");
+    // Pacote de UM usuário: mesmo formato do banco antigo (compatível com a nuvem e com backups anteriores)
+    function pacoteDoUsuario(comPin) {
+        const p = Object.assign({}, db); // cópia rasa; "usuarios" não é copiado (propriedade invisível)
+        p.usuarios = [{ id: currentUser.id, nome: currentUser.nome, role: currentUser.role, ativo: true }];
+        if (comPin) p.usuarios[0].pin = currentUser.pin;
+        p.usuarioNome = currentUser.nome; p.versao = 'v4';
+        return p;
     }
+    function baixarJson(obj, nome) {
+        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json;charset=utf-8" });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; a.click();
+    }
+    function exportarBackup(auto = false) {
+        if (!currentUser) return;
+        baixarJson(pacoteDoUsuario(true), `ControlCard_${currentUser.nome.replace(/[^a-zA-Z0-9]/g, '')}_${new Date().toISOString().substring(0,10)}.json`);
+        toast(auto ? "Backup de segurança baixado." : "Backup baixado com sucesso!");
+    }
+    function exportarBackupGeral() { baixarJson(ROOT, `ControlCard_GERAL_${new Date().toISOString().substring(0,10)}.json`); toast("Backup geral baixado."); }
 
     /* ================= IMPORTAÇÃO DE PLANILHA (.xlsx) ================= */
     // Lê a planilha exportada (abas Despesas / Pagamentos / Usuarios) e reconstrói a base no formato do app.
@@ -932,41 +1103,43 @@
             msg += `\n\nIsto SUBSTITUI despesas e pagamentos atuais (${db.despesas.length} e ${db.pagamentos.length}). Os logins são mantidos. Um backup JSON do estado atual será baixado antes. Continuar?`;
             if (!confirm(msg)) { limpar(); return; }
             if (db.despesas.length || db.pagamentos.length) exportarBackup(true);
-            db = novo; salvarDB(); limpar();
+            trocarDataset(novo); sanearDataset(db); salvarDB(); limpar();
             toast('✅ Planilha migrada com sucesso!');
             setTimeout(() => window.location.reload(), 1500);
         }).catch(err => { limpar(); toast('Erro ao ler planilha: ' + err.message, 'erro'); });
     }
 
     /* ================= SYNC NUVEM ================= */
-    function carregarWebhook() { let w = localStorage.getItem('cc_drive_webhook'); if(w) document.getElementById('drive-webhook').value = w; }
-    function salvarWebhook() { localStorage.setItem('cc_drive_webhook', document.getElementById('drive-webhook').value.trim()); toast("URL Nuvem Salva!"); }
+    function carregarWebhook() { document.getElementById('drive-webhook').value = localStorage.getItem(chaveWebhook()) || ''; }
+    function salvarWebhook() { localStorage.setItem(chaveWebhook(), document.getElementById('drive-webhook').value.trim()); toast("URL Nuvem Salva!"); }
     
+    // Cada usuário usa a PRÓPRIA URL de nuvem e envia só o PRÓPRIO banco
     function sincronizarManual(forcePush = false, clickUsuario = false) {
-        let url = localStorage.getItem('cc_drive_webhook');
+        if (!currentUser) return;
+        let url = localStorage.getItem(chaveWebhook());
         if(!url || !navigator.onLine) {
             if (clickUsuario) toast("URL da Nuvem não configurada ou Offline.", "erro");
             return;
         }
-        
+        const eu = currentUser, chPend = chavePendente();
         let icon = document.getElementById('cloud-status-icon');
         icon.innerText = 'cloud_sync'; icon.classList.remove('synced', 'offline');
 
         if(forcePush) {
-            fetch(url, { method: 'POST', body: JSON.stringify({ dados: db, versao: "v3" }) })
-            .then(r => { localStorage.removeItem('cc_pendente_envio'); icon.innerText = 'cloud_done'; icon.classList.add('synced'); if(clickUsuario) toast("Enviado para nuvem!"); })
+            fetch(url, { method: 'POST', body: JSON.stringify({ dados: pacoteDoUsuario(false), versao: "v4" }) })
+            .then(r => { localStorage.removeItem(chPend); icon.innerText = 'cloud_done'; icon.classList.add('synced'); if(clickUsuario) toast("Enviado para nuvem!"); })
             .catch(e => { icon.innerText = 'cloud_off'; icon.classList.add('offline'); });
         } else {
             fetch(url).then(r => r.json()).then(nuvem => {
-                if(nuvem && nuvem.despesas) {
-                    if (!nuvem.usuarios || nuvem.usuarios.length === 0) nuvem.usuarios = db.usuarios;
-                    ['pessoas','cartoes','categorias','pessoasInativas','cartoesInativos','categoriasInativas','emprestimos', 'despesas', 'pagamentos'].forEach(k => { if (!Array.isArray(nuvem[k])) nuvem[k] = []; });
-                    
-                    const pendente = localStorage.getItem('cc_pendente_envio') === '1';
+                if (!currentUser || currentUser.id !== eu.id) return; // trocou de usuário no meio do caminho
+                if(nuvem && Array.isArray(nuvem.despesas)) {
+                    const deOutro = nuvem.usuarioNome ? nuvem.usuarioNome !== eu.nome : (Array.isArray(nuvem.usuarios) && nuvem.usuarios.length > 0 && !nuvem.usuarios.some(u => u.nome === eu.nome));
+                    if (deOutro) { if (clickUsuario) toast('Esta URL de nuvem guarda os dados de outro usuário. Use uma URL só sua.', 'erro'); icon.innerText = 'cloud_off'; icon.classList.add('offline'); return; }
+                    const pendente = localStorage.getItem(chPend) === '1';
                     if (pendente && !clickUsuario) { sincronizarManual(true, false); return; } // há alterações locais ainda não enviadas: envia em vez de sobrescrever
                     if (clickUsuario && pendente && !confirm('Você tem alterações neste aparelho que ainda não foram enviadas. Puxar da nuvem vai SUBSTITUIR essas alterações. Continuar?')) return;
                     if(nuvem.despesas.length > db.despesas.length || clickUsuario) {
-                        db = nuvem; salvarDB(); localStorage.removeItem('cc_pendente_envio'); carregarSelectsGerais();
+                        trocarDataset(nuvem); sanearDataset(db); try { gravarRoot(); } catch (e) {} localStorage.removeItem(chPend); carregarSelectsGerais();
                         atualizarTelaAtual();
                         if(clickUsuario) toast("Sincronizado da Nuvem!");
                     }
@@ -992,18 +1165,13 @@
         let pSelect = `<option value="" disabled selected>SELECIONE...</option>`;
         pAtivas.forEach(p => pSelect += `<option value="${p}">${p}</option>`);
         const vCal = document.getElementById('cal-filtro-pessoa').value, vExt = document.getElementById('extrato-pessoa').value;
-        if (currentUser.role === 'admin') {
-            // Filtros NÃO levam a opção "SELECIONE..." (ela deixava o valor vazio e escondia tudo)
-            let optsFiltro = `<option value="TODOS">TODAS AS PESSOAS</option>` + pAtivas.map(p => `<option value="${p}">${p}</option>`).join('');
-            document.getElementById('cal-filtro-pessoa').innerHTML = optsFiltro;
-            document.getElementById('extrato-pessoa').innerHTML = optsFiltro;
-            // mantém a pessoa escolhida quando a lista é recarregada (ex.: ao tocar num cartão)
-            if (vCal && pAtivas.includes(vCal)) document.getElementById('cal-filtro-pessoa').value = vCal;
-            if (vExt && pAtivas.includes(vExt)) document.getElementById('extrato-pessoa').value = vExt;
-        } else {
-            document.getElementById('cal-filtro-pessoa').innerHTML = `<option value="TODOS" selected>SOMENTE EU (${currentUser.nome})</option>`;
-            document.getElementById('extrato-pessoa').innerHTML = `<option value="TODOS" selected>SOMENTE EU (${currentUser.nome})</option>`;
-        }
+        // Filtros NÃO levam a opção "SELECIONE..." (ela deixava o valor vazio e escondia tudo)
+        const optsFiltro = `<option value="TODOS">TODAS AS PESSOAS</option>` + pAtivas.map(p => `<option value="${p}">${p}</option>`).join('');
+        document.getElementById('cal-filtro-pessoa').innerHTML = optsFiltro;
+        document.getElementById('extrato-pessoa').innerHTML = optsFiltro;
+        // mantém a pessoa escolhida quando a lista é recarregada (ex.: ao tocar num cartão)
+        if (vCal && pAtivas.includes(vCal)) document.getElementById('cal-filtro-pessoa').value = vCal;
+        if (vExt && pAtivas.includes(vExt)) document.getElementById('extrato-pessoa').value = vExt;
         document.querySelectorAll('.pessoa-lanc, #pag-pessoa, #emp-pessoa, #edit-pessoa, #parc-pessoa, #transf-de, #transf-para, #adm-login-pessoa').forEach(el => el.innerHTML = pSelect);
 
         // Cartões
@@ -1025,7 +1193,7 @@
 
         // Tabelas Cadastros
         carregarEdicaoCartoes(); carregarEdicaoCategorias(); carregarEdicaoPessoasSimples(); 
-        if(currentUser.role === 'admin') { carregarConfigAdmin(); preencherListasCorrecao(); }
+        preencherListasCorrecao(); if (currentUser.role === 'admin') carregarConfigAdmin();
     }
 
     function toggleChip(nome) {
@@ -1048,7 +1216,7 @@
         if(id === 'dashboard') atualizarSaldos();
         if(id === 'calendario') renderizarCalendario();
         if(id === 'extrato') renderizarExtrato();
-        if(id === 'config') { if (currentUser.role === 'admin') { renderizarListaParcelamentos(); renderizarListaTransferencia(); } }
+        if(id === 'config') { renderizarListaParcelamentos(); renderizarListaTransferencia(); carregarAjusteForm(); }
     }
 
     /* ================= CÁLCULOS E DASHBOARD ================= */
@@ -1141,7 +1309,7 @@
         if (aberta('dashboard')) atualizarSaldos();
         if (aberta('calendario')) { fecharDetalheDia(); renderizarCalendario(); }
         if (aberta('extrato')) renderizarExtrato();
-        if (aberta('config') && currentUser.role === 'admin') { renderizarListaParcelamentos(); renderizarListaTransferencia(); }
+        if (aberta('config')) { renderizarListaParcelamentos(); renderizarListaTransferencia(); }
     }
 
     function alternarVisaoDash(modo) { visaoDashboardAtual = modo; document.getElementById('btn-visao-pessoa').classList.toggle('active', modo === 'pessoa'); document.getElementById('btn-visao-cartao').classList.toggle('active', modo === 'cartao'); atualizarSaldos(); }
@@ -1227,24 +1395,34 @@
         let desp = obterDespesasPermitidas().filter(d => d.dataRef === mesStr && (fP === 'TODOS' || d.pessoa === fP) && (cartoesSelCal.length === 0 || cartoesSelCal.includes(d.cartao)));
         let pag = obterPagamentosPermitidos().filter(p => (p.dataRef || p.data.substring(0,7)) === mesStr && (fP === 'TODOS' || p.pessoa === fP));
 
-        let mapa = {}; let totD = 0; let totP = 0; let maxDias = new Date(ano, mes+1, 0).getDate();
+        let mapa = {}; let totD = 0; let totP = 0; let maxDias = new Date(ano, mes+1, 0).getDate(); const itens = [];
         
         desp.forEach(d => {
             let dia = d.dataCompra && d.dataCompra.includes('-') ? parseInt(d.dataCompra.split('-')[2]) : 10;
             if(!d.dataCompra && d.cartao) { let ci = db.cartoes.find(c => (c.nome||c) === d.cartao); dia = ci && ci.vencimento ? ci.vencimento : 10; }
             if(dia > maxDias) dia = maxDias; if(dia < 1) dia = 1;
             let v = getValorAjustadoEmprestimo(d);
-            if(!mapa[dia]) mapa[dia] = {d:0, p:0}; mapa[dia].d += v; totD += v;
+            if(!mapa[dia]) mapa[dia] = {d:0, p:0}; mapa[dia].d += v; totD += v; itens.push({ dia, d, v });
         });
 
         pag.forEach(p => {
             let dia = p.data && p.data.includes('-') ? parseInt(p.data.split('-')[2]) : 1;
             if(dia > maxDias) dia = maxDias; if(dia < 1) dia = 1;
-            if(!mapa[dia]) mapa[dia] = {d:0, p:0}; mapa[dia].p += p.valor; totP += p.valor;
+            if(!mapa[dia]) mapa[dia] = {d:0, p:0}; mapa[dia].p += p.valor; totP += p.valor; itens.push({ dia, p });
         });
 
         document.getElementById('cal-metric-cobrado').innerText = brl(totD); document.getElementById('cal-metric-recebido').innerText = brl(totP);
         document.getElementById('cal-metric-saldo').innerText = brl(Math.abs(totD - totP));
+
+        // Lista do mês, agrupada por dia (aparece sempre; tocar no dia do calendário abre só aquele dia)
+        itens.sort((a, b) => a.dia - b.dia); let htmlL = ''; let diaAtualL = null;
+        itens.forEach(it => {
+            if (it.dia !== diaAtualL) { diaAtualL = it.dia; htmlL += `<div class="cal-lista-dia">Dia ${it.dia}</div>`; }
+            if (it.d) { const i = formatarInfoItem(it.d, false); htmlL += `<div class="t-row" onclick="abrirEdicao(${it.d.id}, 'desp')"><div class="t-desc"><strong>${i.descLimp} ${i.badgeP}</strong><span>👤 ${it.d.pessoa} | 💳 ${it.d.cartao||'💲'}</span></div><div class="t-val desp">R$ ${it.v.toFixed(2)}</div></div>`; }
+            else { const i = formatarInfoItem(it.p, true); htmlL += `<div class="t-row" onclick="abrirEdicao(${it.p.id}, 'pag')"><div class="t-desc"><strong>${i.descLimp} ${i.badgeP}</strong><span>👤 ${it.p.pessoa} | 💰 Recebido</span></div><div class="t-val pag">+ R$ ${it.p.valor.toFixed(2)}</div></div>`; }
+        });
+        document.getElementById('cal-mes-titulo').innerText = `LANÇAMENTOS DE ${formatarMesAno(mesStr)} (${itens.length})`;
+        document.getElementById('cal-mes-lista').innerHTML = htmlL || '<p style="color:var(--text-light); text-align:center; font-size:0.8rem;">Sem lançamentos neste mês.</p>';
 
         let primDia = new Date(ano, mes, 1).getDay();
         const agora = new Date(); const ehMesAtual = agora.getFullYear() === ano && agora.getMonth() === mes;
@@ -1416,9 +1594,7 @@
 
     function addPagador() {
         const id = Date.now();
-        let pSelect = document.getElementById('cal-filtro-pessoa').innerHTML
-            .replace('<option value="TODOS">TODAS AS PESSOAS</option>', '')
-            .replace('<option value="TODOS" selected="">SOMENTE EU ('+currentUser.nome+')</option>', '');
+        let pSelect = `<option value="" disabled selected>SELECIONE...</option>` + (db.pessoas || []).filter(p => !(db.pessoasInativas || []).includes(p)).sort().map(p => `<option value="${p}">${p}</option>`).join('');
         
         const html = `
         <div class="pagador-block" id="pag-${id}">
@@ -1663,11 +1839,11 @@
         let html = '';
         db.pessoas.sort().forEach(p => {
             let inativo = (db.pessoasInativas||[]).includes(p);
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border);">
                 <div><strong>${p}</strong> ${inativo ? '<span style="color:var(--danger); font-size:0.7rem;">(Inativo)</span>' : ''}</div>
                 <div style="display:flex; gap:6px;">
                     <button class="btn-small" style="color:var(--primary);" onclick="editarPessoa('${p}')"><span class="material-icons-outlined" style="font-size:1rem;">edit</span></button>
-                    ${currentUser.role==='admin' ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoPessoa('${p}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
+                    ${true ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoPessoa('${p}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
                 </div>
             </div>`;
         });
@@ -1677,33 +1853,82 @@
     function editarPessoa(p) { let n = prompt(`Novo nome para "${p}":`, p); if(n && n.trim() && n.toUpperCase() !== p) { let nv = n.toUpperCase(); db.pessoas[db.pessoas.indexOf(p)] = nv; db.despesas.forEach(d=>{if(d.pessoa===p) d.pessoa=nv;}); db.pagamentos.forEach(d=>{if(d.pessoa===p) d.pessoa=nv;}); if(db.usuarios) { let u = db.usuarios.find(x => x.nome === p); if(u) u.nome = nv; } salvarDB(); carregarSelectsGerais(); sincronizarManual(true); } }
     function toggleAtivoPessoa(p) { if(!db.pessoasInativas) db.pessoasInativas = []; if(db.pessoasInativas.includes(p)) db.pessoasInativas = db.pessoasInativas.filter(x => x !== p); else db.pessoasInativas.push(p); salvarDB(); carregarEdicaoPessoasSimples(); }
 
+    function diaValido(v) { const n = parseInt(v); return n >= 1 && n <= 31 ? n : null; }
+    function escHtml(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
+    // Melhor dia: o que foi informado; se vazio, o dia seguinte ao fechamento
+    function cartaoMelhorDia(c) { const m = diaValido(c.melhorDia); if (m) return m; const f = diaValido(c.fechamento); return f && f < 31 ? f + 1 : 1; }
+    // Cartão que ainda está com os dias padrão (25/5) e nunca foi conferido: não gera aviso para não avisar errado
+    function cartaoSemConferir(c) { return typeof c === 'object' && !c.conferido && parseInt(c.fechamento) === 25 && parseInt(c.vencimento) === 5; }
+
     function carregarEdicaoCartoes() {
         let html = '';
         db.cartoes.sort((a,b) => (a.nome||a).localeCompare(b.nome||b)).forEach(c => {
             let nome = c.nome || c; let inativo = (db.cartoesInativos||[]).includes(nome);
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
-                <div><strong>${nome}</strong> ${inativo ? '<span style="color:var(--danger); font-size:0.7rem;">(Inativo)</span>' : ''}</div>
+            const obj = typeof c === 'object' ? c : { nome: c };
+            const dias = diaValido(obj.fechamento) && diaValido(obj.vencimento) ? `Fecha dia ${obj.fechamento} • Vence dia ${obj.vencimento} • Melhor dia ${cartaoMelhorDia(obj)}${obj.melhorDia ? '' : ' (auto)'}` : 'Dias não informados';
+            const aviso = cartaoSemConferir(obj) ? `<div style="color:var(--primary); font-size:0.7rem; margin-top:2px;">⚠️ Dias padrão: confira no lápis (sem aviso até conferir)</div>` : '';
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border);">
+                <div><strong>${escHtml(nome)}</strong> ${inativo ? '<span style="color:var(--danger); font-size:0.7rem;">(Inativo)</span>' : ''}<div style="color:var(--text-light); font-size:0.72rem; margin-top:2px;">${dias}</div>${aviso}</div>
                 <div style="display:flex; gap:6px;">
-                    <button class="btn-small" style="color:var(--primary);" onclick="editarCartao('${nome}')"><span class="material-icons-outlined" style="font-size:1rem;">edit</span></button>
-                    ${currentUser.role==='admin' ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoCartao('${nome}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
+                    <button class="btn-small" style="color:var(--primary);" onclick="abrirEdicaoCartao(decodeURIComponent('${encodeURIComponent(nome)}'))"><span class="material-icons-outlined" style="font-size:1rem;">edit</span></button>
+                    ${true ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoCartao('${nome}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
                 </div>
             </div>`;
         });
         document.getElementById('lista-edit-cartoes').innerHTML = html;
     }
-    function addCartao() { let n = document.getElementById('novo-cartao-nome').value.trim(); if(n && !db.cartoes.find(x => (x.nome||x) === n.toUpperCase())) { db.cartoes.push({nome: n.toUpperCase(), fechamento: parseInt(document.getElementById('novo-cartao-fecha').value)||25, vencimento: parseInt(document.getElementById('novo-cartao-vence').value)||5}); salvarDB(); carregarSelectsGerais(); document.getElementById('novo-cartao-nome').value=''; } }
-    function editarCartao(nome) { let n = prompt(`Mudar nome de "${nome}":`, nome); if(n && n.trim() && n.toUpperCase() !== nome) { let novo = n.toUpperCase(); db.cartoes.find(c=>(c.nome||c)===nome).nome = novo; db.despesas.forEach(d=>{if(d.cartao===nome) d.cartao=novo;}); salvarDB(); carregarSelectsGerais(); sincronizarManual(true); } }
+    function addCartao() {
+        const n = document.getElementById('novo-cartao-nome').value.trim().toUpperCase();
+        if (!n) return toast('Informe o nome do cartão.', 'erro');
+        if (db.cartoes.find(x => (x.nome||x) === n)) return toast('Esse cartão já existe.', 'erro');
+        const f = diaValido(document.getElementById('novo-cartao-fecha').value), v = diaValido(document.getElementById('novo-cartao-vence').value);
+        if (!f || !v) return toast('Informe o dia de fechamento e o de vencimento (1 a 31).', 'erro');
+        const mTxt = document.getElementById('novo-cartao-melhor').value.trim(); const m = mTxt === '' ? null : diaValido(mTxt);
+        if (mTxt !== '' && !m) return toast('Melhor dia: de 1 a 31 ou deixe vazio.', 'erro');
+        db.cartoes.push({ nome: n, fechamento: f, vencimento: v, melhorDia: m, conferido: true });
+        salvarDB(); carregarSelectsGerais(); sincronizarManual(true);
+        ['novo-cartao-nome', 'novo-cartao-fecha', 'novo-cartao-vence', 'novo-cartao-melhor'].forEach(id => document.getElementById(id).value = '');
+        toast('Cartão adicionado!');
+    }
+    function abrirEdicaoCartao(nome) {
+        const c = db.cartoes.find(x => (x.nome||x) === nome); if (!c) return;
+        const o = typeof c === 'object' ? c : { nome: c };
+        document.getElementById('ec-nome-orig').value = nome; document.getElementById('ec-nome').value = nome;
+        document.getElementById('ec-fecha').value = o.fechamento || ''; document.getElementById('ec-vence').value = o.vencimento || '';
+        document.getElementById('ec-melhor').value = o.melhorDia || '';
+        document.getElementById('modal-overlay').classList.add('open'); document.getElementById('modal-cartao').classList.add('open');
+    }
+    function salvarCartaoEditado() {
+        const orig = document.getElementById('ec-nome-orig').value;
+        const idx = db.cartoes.findIndex(x => (x.nome||x) === orig); if (idx < 0) return fecharModais();
+        const nome = document.getElementById('ec-nome').value.trim().toUpperCase();
+        const f = diaValido(document.getElementById('ec-fecha').value), v = diaValido(document.getElementById('ec-vence').value);
+        const mTxt = document.getElementById('ec-melhor').value.trim(); const m = mTxt === '' ? null : diaValido(mTxt);
+        if (!nome) return toast('Informe o nome do cartão.', 'erro');
+        if (!f || !v) return toast('Fechamento e vencimento: informe um dia de 1 a 31.', 'erro');
+        if (mTxt !== '' && !m) return toast('Melhor dia: de 1 a 31 ou deixe vazio.', 'erro');
+        if (nome !== orig && db.cartoes.some(x => (x.nome||x) === nome)) return toast('Já existe um cartão com esse nome.', 'erro');
+        let c = db.cartoes[idx]; if (typeof c !== 'object') c = db.cartoes[idx] = { nome: c };
+        if (nome !== orig) {
+            db.despesas.forEach(d => { if (d.cartao === orig) d.cartao = nome; });
+            db.cartoesInativos = (db.cartoesInativos || []).map(x => x === orig ? nome : x);
+            cartoesSelCal = cartoesSelCal.map(x => x === orig ? nome : x); cartoesSelExt = cartoesSelExt.map(x => x === orig ? nome : x);
+            const cfg = pushCfg(currentUser); if (Array.isArray(cfg.listaCartoes)) { cfg.listaCartoes = cfg.listaCartoes.map(x => x === orig ? nome : x); localStorage.setItem('cc_push_cfg_' + currentUser.id, JSON.stringify(cfg)); }
+        }
+        c.nome = nome; c.fechamento = f; c.vencimento = v; c.melhorDia = m; c.conferido = true;
+        salvarDB(); fecharModais(); carregarSelectsGerais(); atualizarTelaAtual(); sincronizarManual(true); toast('Cartão atualizado!');
+    }
     function toggleAtivoCartao(c) { if(!db.cartoesInativos) db.cartoesInativos = []; if(db.cartoesInativos.includes(c)) db.cartoesInativos = db.cartoesInativos.filter(x => x !== c); else db.cartoesInativos.push(c); salvarDB(); carregarSelectsGerais(); }
 
     function carregarEdicaoCategorias() {
         let html = '';
         db.categorias.sort().forEach(cat => {
             let inativo = (db.categoriasInativas||[]).includes(cat);
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border);">
                 <div><strong>${cat}</strong> ${inativo ? '<span style="color:var(--danger); font-size:0.7rem;">(Inativo)</span>' : ''}</div>
                 <div style="display:flex; gap:6px;">
                     <button class="btn-small" style="color:var(--primary);" onclick="editarCategoria('${cat}')"><span class="material-icons-outlined" style="font-size:1rem;">edit</span></button>
-                    ${currentUser.role==='admin' ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoCategoria('${cat}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
+                    ${true ? `<button class="btn-small" style="color:var(--text);" onclick="toggleAtivoCategoria('${cat}')"><span class="material-icons-outlined" style="font-size:1rem;">${inativo?'visibility_off':'visibility'}</span></button>` : ''}
                 </div>
             </div>`;
         });
@@ -1714,21 +1939,181 @@
     function toggleAtivoCategoria(c) { if(!db.categoriasInativas) db.categoriasInativas = []; if(db.categoriasInativas.includes(c)) db.categoriasInativas = db.categoriasInativas.filter(x => x !== c); else db.categoriasInativas.push(c); salvarDB(); carregarSelectsGerais(); }
 
     /* ================= PUSH E BACKUP DO PERFIL ================= */
-    function salvarConfigPush() { localStorage.setItem('cc_push_horario_' + currentUser.id, document.getElementById('push-horario').value); if("Notification" in window) Notification.requestPermission(); toast("Horário de Push salvo!"); }
-    
-    function iniciarPushDiario() {
-        if (!("Notification" in window) || !currentUser) return;
-        setInterval(() => {
-            let agora = new Date(); let hm = String(agora.getHours()).padStart(2,'0') + ':' + String(agora.getMinutes()).padStart(2,'0');
-            let config = localStorage.getItem('cc_push_horario_' + currentUser.id) || '20:00'; let hoje = agora.toISOString().substring(0,10);
-            if (hm === config && localStorage.getItem('cc_push_last_' + currentUser.id) !== hoje) {
-                let diaA = agora.getDate(); let alertas = [];
-                db.cartoes.forEach(c => { if(diaA === parseInt(c.fechamento)) alertas.push(`✅ ${c.nome||c}: Melhor dia para comprar!`); if(diaA === parseInt(c.vencimento)) alertas.push(`⚠️ ${c.nome||c}: VENCE HOJE!`); });
-                if (alertas.length > 0 && Notification.permission === "granted") new Notification("ControlCard - Resumo do Dia", { body: alertas.join("\n") });
-                localStorage.setItem('cc_push_last_' + currentUser.id, hoje);
-            }
-        }, 30000);
+    /* ================= AVISOS (PUSH) COM O APP ABERTO — cada usuário configura o seu ================= */
+    const PUSH_PADRAO = { ativo: true, compras: true, comprasHora: '21:00', soSeNaoLancou: true, listaPessoas: [], cartoes: true, cartoesHora: '09:00', diasAntes: 3, melhorDia: true, listaCartoes: null, bloqueio: '5' };
+    const pushPad = n => String(n).padStart(2, '0');
+    function pushCfg(user) { try { return Object.assign({}, PUSH_PADRAO, JSON.parse(localStorage.getItem('cc_push_cfg_' + user.id) || '{}')); } catch (e) { return Object.assign({}, PUSH_PADRAO); } }
+    function pushHoje(agora) { return `${agora.getFullYear()}-${pushPad(agora.getMonth() + 1)}-${pushPad(agora.getDate())}`; } // data LOCAL (não UTC)
+    function ultimoDiaMes(ano, mes0) { return new Date(ano, mes0 + 1, 0).getDate(); }
+    // Dias até o próximo "dia X" do mês (hoje = 0); meses curtos usam o último dia
+    function diasAteDia(agora, dia) {
+        const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+        let a = hoje.getFullYear(), m = hoje.getMonth();
+        let alvo = new Date(a, m, Math.min(dia, ultimoDiaMes(a, m)));
+        if (alvo < hoje) { m++; if (m > 11) { m = 0; a++; } alvo = new Date(a, m, Math.min(dia, ultimoDiaMes(a, m))); }
+        return Math.round((alvo - hoje) / 86400000);
     }
+    function cartoesAtivosNomes() { return (db.cartoes || []).filter(c => !(db.cartoesInativos || []).includes(c.nome || c)).map(c => c.nome || c); }
+    function pessoasAtivasNomes() { return (db.pessoas || []).filter(p => !(db.pessoasInativas || []).includes(p)).sort(); }
+    // Cartões acompanhados: os escolhidos no Ajuste; sem escolha, todos os SEUS cartões ativos
+    function pushCartoesSeguidos(cfg) { const ativos = cartoesAtivosNomes(); return Array.isArray(cfg.listaCartoes) ? cfg.listaCartoes.filter(n => ativos.includes(n)) : ativos; }
+    // Calcula o que avisar hoje (função pura, sem horário nem "já enviado")
+    function pushCalcular(cfg, agora, opts) {
+        opts = opts || {}; const out = { compras: null, cartoes: [] };
+        if (cfg.compras) {
+            const hoje = pushHoje(agora); const deHoje = db.despesas.filter(d => d.dataCompra === hoje);
+            const seguidas = (cfg.listaPessoas || []).filter(p => pessoasAtivasNomes().includes(p));
+            if (seguidas.length) {
+                const faltam = seguidas.filter(p => !deHoje.some(d => d.pessoa === p));
+                if (faltam.length) out.compras = `📝 Hora de lançar as compras de hoje. Sem lançamento hoje: ${faltam.join(', ')}`;
+                else if (opts.ignorarJaLancou || !cfg.soSeNaoLancou) out.compras = '📝 Hora de lançar as compras de hoje!';
+            } else if (opts.ignorarJaLancou || !(cfg.soSeNaoLancou && deHoje.length > 0)) out.compras = '📝 Hora de lançar as compras de hoje!';
+        }
+        if (cfg.cartoes) {
+            const seguidos = pushCartoesSeguidos(cfg);
+            db.cartoes.forEach(c => {
+                const nome = c.nome || c; if (typeof c !== 'object' || !seguidos.includes(nome) || cartaoSemConferir(c)) return;
+                const v = diaValido(c.vencimento);
+                if (v) {
+                    const dias = diasAteDia(agora, v);
+                    if (dias === 0) out.cartoes.push(`⚠️ ${nome}: VENCE HOJE!`);
+                    else if (dias <= Math.max(0, parseInt(cfg.diasAntes) || 0)) out.cartoes.push(`⏰ ${nome}: vence ${dias === 1 ? 'amanhã' : 'em ' + dias + ' dias'} (dia ${v})`);
+                }
+                if (cfg.melhorDia && diaValido(c.fechamento) && agora.getDate() === Math.min(cartaoMelhorDia(c), ultimoDiaMes(agora.getFullYear(), agora.getMonth()))) out.cartoes.push(`✅ ${nome}: melhor dia para comprar!`);
+            });
+        }
+        return out;
+    }
+
+    function mostrarAvisoApp(secoes) {
+        let el = document.getElementById('aviso-app');
+        if (!el) { el = document.createElement('div'); el.id = 'aviso-app'; el.style.cssText = 'position:fixed; top:calc(10px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); width:min(440px, calc(100vw - 20px)); z-index:99998; box-sizing:border-box; background:var(--surface); color:var(--text); border:1px solid var(--primary); border-radius:14px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.35); font-size:0.85rem;'; document.body.appendChild(el); }
+        const temLancar = secoes.some(x => x.acao === 'lancar');
+        el.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;"><div style="flex:1;">${secoes.map(x => `<div style="margin-bottom:6px;"><strong style="color:var(--primary);">${escHtml(x.titulo)}</strong><div style="margin-top:4px; line-height:1.5;">${x.linhas.map(escHtml).join('<br>')}</div></div>`).join('')}${temLancar ? `<button class="btn btn-primary" style="padding:8px; margin-top:4px;" onclick="document.getElementById('aviso-app').remove(); abrirModalLancamento();">＋ LANÇAR COMPRA</button>` : ''}</div><span class="material-icons-outlined" style="cursor:pointer; color:var(--text-light);" onclick="document.getElementById('aviso-app').remove()">close</span></div>`;
+    }
+    function pushNotificar(titulo, corpo) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const opts = { body: corpo, icon: 'icon-192.png', badge: 'icon-192.png', tag: 'cc-' + titulo };
+        const direto = () => { try { new Notification(titulo, opts); } catch (e) {} };
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) navigator.serviceWorker.getRegistration().then(reg => reg && reg.showNotification ? reg.showNotification(titulo, opts) : direto()).catch(direto);
+        else direto();
+    }
+    function pushEntregar(secoes) {
+        if (!secoes.length) return;
+        if (document.visibilityState === 'visible') mostrarAvisoApp(secoes);
+        else secoes.forEach(x => pushNotificar(x.titulo, x.linhas.join('\n')));
+    }
+    // Roda a cada 30s e sempre que o app volta para a tela; cada aviso sai no máximo 1x por dia, a partir do horário escolhido
+    function pushVerificar(agoraTeste) {
+        if (!currentUser || bloqueado()) return;
+        const cfg = pushCfg(currentUser); if (!cfg.ativo) return;
+        const podeNotificar = ('Notification' in window) && Notification.permission === 'granted';
+        if (document.visibilityState !== 'visible' && !podeNotificar) return; // sem como mostrar: espera o app voltar para a tela
+        const agora = agoraTeste || new Date(); const hoje = pushHoje(agora); const hm = pushPad(agora.getHours()) + ':' + pushPad(agora.getMinutes());
+        const marca = t => 'cc_push_' + t + '_' + currentUser.id; const secoes = [];
+        if (cfg.compras && hm >= cfg.comprasHora && localStorage.getItem(marca('compras')) !== hoje) {
+            localStorage.setItem(marca('compras'), hoje);
+            const r = pushCalcular(Object.assign({}, cfg, { cartoes: false }), agora);
+            if (r.compras) secoes.push({ titulo: 'ControlCard — Compras do dia', linhas: [r.compras], acao: 'lancar' });
+        }
+        if (cfg.cartoes && hm >= cfg.cartoesHora && localStorage.getItem(marca('cartoes')) !== hoje) {
+            localStorage.setItem(marca('cartoes'), hoje);
+            const r = pushCalcular(Object.assign({}, cfg, { compras: false }), agora);
+            if (r.cartoes.length) secoes.push({ titulo: 'ControlCard — Cartões', linhas: r.cartoes });
+        }
+        pushEntregar(secoes);
+    }
+    let pushTimer = null;
+    function iniciarPushDiario() {
+        if (pushTimer) clearInterval(pushTimer);
+        pushTimer = setInterval(() => pushVerificar(), 30000);
+        pushVerificar();
+    }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pushVerificar(); });
+
+    /* ================= MENU AJUSTE (por usuário) ================= */
+    function toggleAcc(head) { head.parentElement.classList.toggle('open'); }
+    function abrirAjuste() { if (!currentUser) return; mudarTela('config', 'Ajuste'); window.scrollTo(0, 0); }
+    function textoPermissaoAvisos() {
+        if (!('Notification' in window)) return 'Este navegador não tem notificações do celular; os avisos aparecem dentro do app.';
+        return { granted: 'Notificações do celular: permitidas ✅', denied: 'Notificações do celular: bloqueadas (libere nas configurações do navegador)', default: 'Notificações do celular: ainda não permitidas' }[Notification.permission];
+    }
+    function pedirPermissaoAvisos() {
+        if (!('Notification' in window)) return toast('Sem suporte a notificações neste navegador.', 'erro');
+        Notification.requestPermission().then(() => { document.getElementById('aj-permissao').innerText = textoPermissaoAvisos(); toast(Notification.permission === 'granted' ? 'Notificações permitidas!' : 'Permissão não concedida.', Notification.permission === 'granted' ? 'ok' : 'erro'); });
+    }
+    function carregarAjusteForm() {
+        if (!currentUser) return;
+        const cfg = pushCfg(currentUser); const set = (id, v) => { const e = document.getElementById(id); if (!e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; };
+        set('aj-ativo', cfg.ativo); set('aj-compras', cfg.compras); set('aj-compras-hora', cfg.comprasHora); set('aj-so-nao-lancou', cfg.soSeNaoLancou);
+        set('aj-cartoes', cfg.cartoes); set('aj-cartoes-hora', cfg.cartoesHora); set('aj-dias-antes', cfg.diasAntes); set('aj-melhor', cfg.melhorDia); set('aj-bloqueio', cfg.bloqueio);
+        document.getElementById('aj-permissao').innerText = textoPermissaoAvisos();
+        const pSeg = (cfg.listaPessoas || []); const cSeg = pushCartoesSeguidos(cfg);
+        document.getElementById('aj-lista-pessoas').innerHTML = pessoasAtivasNomes().map(p => `<label class="aj-linha"><span>${escHtml(p)}</span><input type="checkbox" class="aj-pessoa" data-n="${encodeURIComponent(p)}" ${pSeg.includes(p) ? 'checked' : ''}></label>`).join('') || '<p class="helper">Nenhuma pessoa cadastrada.</p>';
+        document.getElementById('aj-lista-cartoes').innerHTML = (db.cartoes || []).filter(c => cartoesAtivosNomes().includes(c.nome || c)).map(c => { const n = c.nome || c; return `<label class="aj-linha"><span>${escHtml(n)}${cartaoSemConferir(c) ? ' <span style="color:var(--primary); font-size:0.7rem;">⚠️ conferir dias</span>' : ''}</span><input type="checkbox" class="aj-cartao" data-n="${encodeURIComponent(n)}" ${cSeg.includes(n) ? 'checked' : ''}></label>`; }).join('') || '<p class="helper">Nenhum cartão cadastrado.</p>';
+    }
+    function lerFormAjuste() {
+        const g = id => document.getElementById(id);
+        const hora = (id, padrao) => /^\d{2}:\d{2}$/.test(g(id).value) ? g(id).value : padrao;
+        const marcados = cls => [...document.querySelectorAll(cls + ':checked')].map(e => decodeURIComponent(e.dataset.n));
+        return { ativo: g('aj-ativo').checked, compras: g('aj-compras').checked, comprasHora: hora('aj-compras-hora', PUSH_PADRAO.comprasHora), soSeNaoLancou: g('aj-so-nao-lancou').checked, listaPessoas: marcados('.aj-pessoa'),
+            cartoes: g('aj-cartoes').checked, cartoesHora: hora('aj-cartoes-hora', PUSH_PADRAO.cartoesHora), diasAntes: Math.min(15, Math.max(0, parseInt(g('aj-dias-antes').value) || 0)), melhorDia: g('aj-melhor').checked,
+            listaCartoes: marcados('.aj-cartao'), bloqueio: g('aj-bloqueio').value || PUSH_PADRAO.bloqueio };
+    }
+    function salvarAjuste() {
+        const cfg = lerFormAjuste(); localStorage.setItem('cc_push_cfg_' + currentUser.id, JSON.stringify(cfg));
+        toast('Ajuste salvo!');
+        if (cfg.ativo && 'Notification' in window && Notification.permission === 'default') pedirPermissaoAvisos();
+    }
+    function testarAvisos() {
+        const cfg = lerFormAjuste(); const r = pushCalcular(cfg, new Date(), { ignorarJaLancou: true });
+        const secoes = [];
+        if (r.compras) secoes.push({ titulo: 'Teste — Compras do dia', linhas: [r.compras], acao: 'lancar' });
+        if (r.cartoes.length) secoes.push({ titulo: 'Teste — Cartões', linhas: r.cartoes });
+        if (!secoes.length) secoes.push({ titulo: 'Teste', linhas: ['Nada para avisar hoje com estes ajustes.'] });
+        mostrarAvisoApp(secoes);
+    }
+
+    /* ================= TELA DE BLOQUEIO (PIN rápido) ================= */
+    let bloqPin = '', bloqErros = 0, bloqTimer = null;
+    function bloqueado() { const el = document.getElementById('tela-bloqueio'); return !!el && el.style.display === 'flex'; }
+    function limiteBloqueioMs() { const v = pushCfg(currentUser).bloqueio; if (v === 'nunca') return null; const m = parseFloat(v); return isNaN(m) ? 300000 : m * 60000; }
+    function marcarUso() { if (currentUser) localStorage.setItem('cc_ultimo_uso_' + currentUser.id, String(Date.now())); }
+    function precisaBloquear() {
+        if (!currentUser) return false; const lim = limiteBloqueioMs(); if (lim === null) return false;
+        const ult = parseInt(localStorage.getItem('cc_ultimo_uso_' + currentUser.id)); if (!ult) return false;
+        return (Date.now() - ult) >= lim;
+    }
+    function desenharPontos() { document.querySelectorAll('#bloq-dots span').forEach((p, i) => p.classList.toggle('on', i < bloqPin.length)); }
+    function mostrarBloqueio() {
+        if (!currentUser) return; bloqPin = ''; desenharPontos();
+        document.getElementById('bloq-nome').innerText = currentUser.nome; document.getElementById('bloq-msg').innerText = '';
+        document.getElementById('tela-bloqueio').style.display = 'flex';
+    }
+    function esconderBloqueio() { const el = document.getElementById('tela-bloqueio'); if (el) el.style.display = 'none'; bloqPin = ''; bloqErros = 0; }
+    function digitarPinBloqueio(d) {
+        if (!bloqueado() || bloqPin.length >= 4) return; bloqPin += d; desenharPontos();
+        if (bloqPin.length < 4) return;
+        if (bloqPin === String(currentUser.pin)) { esconderBloqueio(); marcarUso(); pushVerificar(); return; }
+        bloqErros++; const msg = document.getElementById('bloq-msg');
+        if (bloqErros >= 5) { esconderBloqueio(); fazerLogout(); return; }
+        msg.innerText = `PIN incorreto (${bloqErros}/5)`; const dots = document.getElementById('bloq-dots'); dots.classList.remove('pin-erro'); void dots.offsetWidth; dots.classList.add('pin-erro');
+        bloqPin = ''; setTimeout(desenharPontos, 250);
+    }
+    function apagarPinBloqueio() { bloqPin = bloqPin.slice(0, -1); desenharPontos(); }
+    // Bloqueia ao abrir (sessão restaurada) ou ao voltar depois do tempo escolhido; "último uso" é gravado enquanto o app está em uso
+    function iniciarBloqueio(sessaoRestaurada) {
+        if (bloqTimer) clearInterval(bloqTimer);
+        bloqTimer = setInterval(() => { if (document.visibilityState === 'visible' && !bloqueado()) marcarUso(); }, 10000);
+        if (sessaoRestaurada && precisaBloquear()) mostrarBloqueio(); else marcarUso();
+    }
+    document.addEventListener('visibilitychange', () => {
+        if (!currentUser) return;
+        if (document.visibilityState === 'hidden') { if (!bloqueado()) marcarUso(); }
+        else if (precisaBloquear()) mostrarBloqueio();
+    });
+    window.addEventListener('pagehide', () => { if (currentUser && !bloqueado()) marcarUso(); });
+    document.addEventListener('keydown', e => { if (!bloqueado()) return; if (/^\d$/.test(e.key)) digitarPinBloqueio(e.key); else if (e.key === 'Backspace') apagarPinBloqueio(); });
 
     function baixarExcelUsuario() {
         let csv = "DATA_REFERENCIA;TIPO;DESCRICAO;PESSOA;CARTAO;VALOR\n";
@@ -1745,27 +2130,23 @@
             db.usuarios.forEach(u => {
                 let stat = u.ativo ? '<span style="color:var(--success)">ATIVO</span>' : '<span style="color:var(--danger)">BLOQUEADO</span>';
                 let b = u.ativo ? `<button class="btn-small" style="color:var(--danger);" onclick="adminToggleBloqueio('${u.id}')">BLOQUEAR</button>` : `<button class="btn-small" style="color:var(--success);" onclick="adminToggleBloqueio('${u.id}')">LIBERAR</button>`;
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);"><div><strong>${u.nome}</strong><br><span style="font-size:0.7rem; color:var(--text-light);">PIN: ${u.pin} | Perfil: ${u.role.toUpperCase()} | ${stat}</span></div>${u.role !== 'admin' ? b : ''}</div>`;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border);"><div><strong>${u.nome}</strong><br><span style="font-size:0.7rem; color:var(--text-light);">PIN: ${u.pin} | Perfil: ${u.role.toUpperCase()} | ${stat}</span></div>${u.role !== 'admin' ? b : ''}</div>`;
             });
         }
         document.getElementById('admin-lista-usuarios').innerHTML = html;
     }
     
     function adminCriarUsuario() {
-        let n = document.getElementById('adm-login-pessoa').value; let pin = document.getElementById('adm-novo-user-pin').value.trim(); let r = document.getElementById('adm-novo-user-perfil').value;
-        if(!n || pin.length !== 4) return alert("Selecione a pessoa e crie um PIN de 4 números.");
-        
+        let n = document.getElementById('adm-novo-user-nome').value.trim().toUpperCase(); let pin = document.getElementById('adm-novo-user-pin').value.trim(); let r = document.getElementById('adm-novo-user-perfil').value;
+        if(!n || !/^\d{4}$/.test(pin)) return alert("Informe o nome do usuário e um PIN de 4 números.");
         let userExistente = db.usuarios.find(u => u.nome === n);
-        if(userExistente) {
-            userExistente.pin = pin; userExistente.role = r; toast("✅ PIN Atualizado!");
-        } else {
-            db.usuarios.push({ id: 'user_'+Date.now(), nome: n, pin: pin, role: r, ativo: true }); toast("✅ Login Criado!");
-        }
+        if(userExistente) { userExistente.pin = pin; userExistente.role = r; toast("✅ PIN Atualizado!"); }
+        else { db.usuarios.push({ id: 'user_'+Date.now(), nome: n, pin: pin, role: r, ativo: true }); toast("✅ Usuário criado! Ele terá cartões, pessoas e lançamentos só dele."); }
         salvarDB(); carregarConfigAdmin();
-        document.getElementById('adm-novo-user-pin').value = '';
+        document.getElementById('adm-novo-user-nome').value = ''; document.getElementById('adm-novo-user-pin').value = '';
     }
-    
-    function adminToggleBloqueio(id) { let u = db.usuarios.find(x => x.id === id); if(u) { u.ativo = !u.ativo; salvarDB(); carregarConfigAdmin(); sincronizarManual(true); } }
+
+        function adminToggleBloqueio(id) { if (id === currentUser.id) return toast('Você não pode bloquear o próprio acesso.', 'erro'); let u = db.usuarios.find(x => x.id === id); if(u) { u.ativo = !u.ativo; salvarDB(); carregarConfigAdmin(); sincronizarManual(true); } }
 
     /* ================= FERRAMENTAS EM MASSA DO ADMIN ================= */
     function renderizarListaParcelamentos() {
@@ -1841,7 +2222,7 @@
 
     function adminZerarTudo() {
         if(prompt("Para apagar TUDO (incluindo usuários), digite:\n\nZERAR BASE COMPLETA") === "ZERAR BASE COMPLETA") {
-            db = { usuarios: [{ id: 'admin_master', nome: 'NETO', pin: '0000', role: 'admin', ativo: true }], cartoes: [], categorias: ["🛍 Mercado"], pessoas: ['NETO'], despesas: [], pagamentos: [] };
+            ROOT = { versao: 'v4', usuarios: [{ id: 'admin_master', nome: 'NETO', pin: '0000', role: 'admin', ativo: true }], dados: {} }; db = vincularDataset(normalizarDataset(novoDataset()));
             salvarDB(); alert("Resetado. Você será desconectado."); fazerLogout();
         }
     }
